@@ -1,7 +1,8 @@
 {
-  "name": "worker-name",
+  "name": "tariffsglobal",
   "compatibility_date": "2025-11-24",
   "assets": {
     "directory": "."
   }
 }
+
