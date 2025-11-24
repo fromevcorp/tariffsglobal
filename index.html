@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tariffs.Global</title><!-- Changed title to Tariffs.Global -->
+    <title>Tariffs.Global</title>
     <!-- Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font --><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Font --><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <!-- Globe.gl --><script src="https://unpkg.com/globe.gl"></script>
     <!-- D3 for color scales --><script src="https://unpkg.com/d3"></script>
     <!-- Markdown Parser --><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -37,7 +37,7 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* New Pulsing Green Light */
+        /* Pulsing Green Light (used in buttons/panels) */
         .pulsing-light {
             display: inline-block;
             width: 8px;
@@ -45,6 +45,18 @@
             background-color: #4ade80; /* bright green */
             border-radius: 50%;
             margin-right: 8px;
+            box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+            animation: pulse-green 2s infinite;
+        }
+
+        /* Dedicated style for the dot in the header */
+        .header-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: #4ade80; /* bright green */
+            border-radius: 50%;
+            margin: 0 4px; /* Minimal margin to fit in the text */
             box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
             animation: pulse-green 2s infinite;
         }
@@ -69,12 +81,18 @@
 
     <!-- Main 3D Container --><div id="globeViz" class="absolute inset-0 z-0"></div>
 
-    <!-- UI Overlay: Header (Minimalistic Panel) --><div class="absolute top-0 left-0 w-full p-6 flex justify-between items-start pointer-events-none z-10">
-        <div class="glass-panel px-4 py-2 rounded-lg pointer-events-auto max-w-sm"><!-- Reduced padding and max-width for minimalistic look -->
-            <h1 class="text-xl font-semibold tracking-tight text-white"><!-- Reduced font size -->Tariffs.Global</h1>
+    <!-- UI Overlay: Top Left Logo & Text (Matches reference image) --><div class="absolute top-6 left-6 z-10 pointer-events-none">
+        <div class="flex items-center space-x-3">
+            <!-- Logo Image from User's Link --><img src="https://i.imgur.com/Gd2MqsS.png" alt="Tariffs Global Logo" class="w-10 h-10 object-contain" onerror="this.onerror=null;this.src='https://placehold.co/40x40/1f2937/ffffff?text=LOGO'">
+            <!-- Title with Pulsating Dot and smaller font --><h1 class="text-2xl font-bold tracking-widest text-white uppercase flex items-center">
+                TARIFFS<span class="header-dot"></span>GLOBAL
+            </h1>
+        </div>
+    </div>
+
+    <!-- UI Overlay: Bottom Left Legend (Matches reference image) --><div class="absolute bottom-6 left-6 z-10 pointer-events-none">
+        <div class="glass-panel px-4 py-3 rounded-lg pointer-events-auto max-w-sm">
             <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-2">2024 Weighted Average Data</p>
-            <!-- Removed descriptive paragraph -->
-            
             <!-- Legend --><div class="flex items-center space-x-2 text-xs text-gray-400">
                 <span>0%</span>
                 <div class="h-2 w-24 rounded-full bg-gradient-to-r from-emerald-500 via-yellow-500 to-red-600"></div>
@@ -403,8 +421,7 @@
                             <div id="ai-duty-output" class="hidden mt-3 p-3 bg-gray-900/80 rounded border border-gray-700 text-sm text-indigo-300"></div>
                     </div>
 
-                    <!-- AI Section 3: Policy Impact Simulator (NEW) -->
-                    <div class="mb-8">
+                    <!-- AI Section 3: Policy Impact Simulator (NEW) --><div class="mb-8">
                         <h3 class="text-sm font-semibold text-white mb-2 flex items-center">
                             <span class="pulsing-light"></span>Policy Impact Simulator
                         </h3>
@@ -417,9 +434,7 @@
                         </div>
                         <div id="ai-impact-output" class="hidden mt-3 text-sm text-gray-200 prose prose-invert max-w-none leading-relaxed p-3 bg-gray-900/80 rounded border border-gray-700"></div>
                     </div>
-                    <!-- End NEW Feature -->
-
-                    <h3 class="text-lg font-semibold text-white mb-4 border-b border-gray-800 pb-2">Key Trade Relations</h3>
+                    <!-- End NEW Feature --><h3 class="text-lg font-semibold text-white mb-4 border-b border-gray-800 pb-2">Key Trade Relations</h3>
                     <div class="space-y-4">
                         ${data.partners.map((p, i) => `
                             <div class="group">
@@ -454,4 +469,4 @@
     </script>
 </body>
 
-</html>s
+</html>
