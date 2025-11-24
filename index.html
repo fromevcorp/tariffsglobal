@@ -92,15 +92,32 @@
         </div>
     </div>
 
-    <!-- UI Overlay: Bottom Left Legend (Matches reference image) --><div class="absolute bottom-6 left-6 z-10 pointer-events-none">
-        <div class="glass-panel px-4 py-3 rounded-lg pointer-events-auto max-w-sm">
-            <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-2">2024 Weighted Average Data</p>
-            <!-- Legend --><div class="flex items-center space-x-2 text-xs text-gray-400">
-                <span>0%</span>
-                <div class="h-2 w-24 rounded-full bg-gradient-to-r from-emerald-500 via-yellow-500 to-red-600"></div>
-                <span>20%+</span>
+    <!-- UI Overlay: Bottom Left Section (Legend, X Link, and Copyright) -->
+    <div class="absolute bottom-6 left-6 z-10 pointer-events-none">
+        <!-- Row of Interactive Elements: Legend + Social Link -->
+        <div class="flex items-end space-x-4 mb-2">
+            <!-- Legend Panel -->
+            <div class="glass-panel px-4 py-3 rounded-lg max-w-sm pointer-events-auto">
+                <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-2">2024 Weighted Average Data</p>
+                <!-- Legend -->
+                <div class="flex items-center space-x-2 text-xs text-gray-400">
+                    <span>0%</span>
+                    <div class="h-2 w-24 rounded-full bg-gradient-to-r from-emerald-500 via-yellow-500 to-red-600"></div>
+                    <span>20%+</span>
+                </div>
             </div>
+
+            <!-- X (Twitter) Logo Link -->
+            <a href="https://x.com/tariffsglobal" target="_blank" class="glass-panel p-3 rounded-lg text-white hover:text-indigo-400 transition-colors pointer-events-auto">
+                <!-- SVG for X Logo (Minimalistic) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.901 1.153h3.583L14.708 11.23L24 23.011h-7.618L10.392 14.814l-6.938 8.197H.085L9.613 12.016.329.088h8.049L14.07 7.781 18.901 1.153zm-1.051 19.34L3.844 2.118h2.648l13.904 18.376h-2.657z"/></svg>
+            </a>
         </div>
+
+        <!-- Copyright Text -->
+        <p class="text-[9px] text-gray-500 pointer-events-auto">
+            © 2025 Tariffs.Global All rights reserved | Powered by EV CORP.
+        </p>
     </div>
 
     <!-- UI Overlay: Hover Tooltip --><div id="tooltip" class="absolute pointer-events-none opacity-0 transition-opacity duration-200 z-20 top-0 left-0">
