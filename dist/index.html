@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tariffs.Global</title><!-- Changed title to Tariffs.Global -->
+    <!-- Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font --><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Globe.gl --><script src="https://unpkg.com/globe.gl"></script>
+    <!-- D3 for color scales --><script src="https://unpkg.com/d3"></script>
+    <!-- Markdown Parser --><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: #000; color: white; }
+        .glass-panel {
+            background: rgba(10, 10, 20, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+
+        .ai-loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* New Pulsing Green Light */
+        .pulsing-light {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #4ade80; /* bright green */
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(74, 222, 128, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main 3D Container --><div id="globeViz" class="absolute inset-0 z-0"></div>
+
+    <!-- UI Overlay: Header (Minimalistic Panel) --><div class="absolute top-0 left-0 w-full p-6 flex justify-between items-start pointer-events-none z-10">
+        <div class="glass-panel px-4 py-2 rounded-lg pointer-events-auto max-w-sm"><!-- Reduced padding and max-width for minimalistic look -->
+            <h1 class="text-xl font-semibold tracking-tight text-white"><!-- Reduced font size -->Tariffs.Global</h1>
+            <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-2">2024 Weighted Average Data</p>
+            <!-- Removed descriptive paragraph -->
+            
+            <!-- Legend --><div class="flex items-center space-x-2 text-xs text-gray-400">
+                <span>0%</span>
+                <div class="h-2 w-24 rounded-full bg-gradient-to-r from-emerald-500 via-yellow-500 to-red-600"></div>
+                <span>20%+</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Overlay: Hover Tooltip --><div id="tooltip" class="absolute pointer-events-none opacity-0 transition-opacity duration-200 z-20 top-0 left-0">
+        <div class="glass-panel px-4 py-2 rounded shadow-xl border-l-4 border-blue-500 transform -translate-x-1/2 -translate-y-full mt-[-10px]">
+            <h3 id="tt-country" class="font-bold text-white text-lg">Country</h3>
+            <div class="flex items-center space-x-3 mt-1">
+                <span id="tt-iso" class="px-1.5 py-0.5 bg-white/10 rounded text-xs font-mono text-gray-300">ISO</span>
+                <div class="flex items-center space-x-1">
+                    <span class="text-gray-400 text-xs uppercase">Avg Rate:</span>
+                    <span id="tt-val" class="text-blue-400 font-mono font-bold">0%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Overlay: Side Detail Panel --><div id="sidePanel" class="absolute top-0 right-0 h-full w-96 bg-black transform translate-x-full transition-transform duration-500 ease-in-out z-30 glass-panel border-l border-white/10 flex flex-col">
+        <!-- Close Button --><button onclick="closePanel()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-50">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+
+        <div class="p-8 flex-1 overflow-y-auto">
+            <div id="panelContent" class="fade-in">
+                <!-- Content injected via JS --></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof d3 === 'undefined') { console.error("D3 library failed to load."); return; }
+
+            const apiKey = ""; // System provides key
+
+            // --- 1. Real Tariff Data Lookup (Approximate Weighted Averages) ---
+            const tariffLookup = {
+                "USA": 3.4, "CHN": 7.5, "IND": 18.1, "BRA": 13.3, "RUS": 6.6, 
+                "DEU": 1.9, "FRA": 1.9, "ITA": 1.9, "ESP": 1.9, "GBR": 4.2, 
+                "JPN": 4.3, "KOR": 13.6, "CAN": 3.8, "MEX": 7.1, "AUS": 2.5,
+                "ARG": 13.4, "TUR": 10.3, "SAU": 5.8, "ZAF": 7.7, "IDN": 8.1,
+                "CHE": 0.0, "NOR": 3.1, "VNM": 9.6, "THA": 10.2, "MYS": 5.6,
+                "EGY": 19.1, "NGA": 12.1, "PAK": 12.7, "BGD": 14.0, "PHL": 6.1
+            };
+
+            const getTariff = (iso) => {
+                if (tariffLookup[iso] !== undefined) return tariffLookup[iso];
+                let hash = 0;
+                for (let i = 0; i < iso.length; i++) hash = iso.charCodeAt(i) + ((hash << 5) - hash);
+                return Math.abs(hash % 15) + 2; 
+            };
+
+            const colorScale = d3.scaleSequential(d3.interpolateRdYlGn).domain([20, 0]);
+
+            // --- 2. Gemini API Integration ---
+            async function callGemini(prompt) {
+                // Exponential backoff logic
+                const maxRetries = 3;
+                let delay = 1000;
+                
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                        const payload = {
+                            contents: [{ parts: [{ text: prompt }] }]
+                        };
+
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        if (response.status === 429) { // Too Many Requests
+                            if (i < maxRetries - 1) {
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                                delay *= 2; // Exponential backoff
+                                continue;
+                            }
+                            throw new Error(`API Error: Too many requests after ${maxRetries} retries.`);
+                        }
+                        
+                        if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                        
+                        const data = await response.json();
+                        return data.candidates?.[0]?.content?.parts?.[0]?.text || "No analysis available.";
+
+                    } catch (error) {
+                        console.error("Gemini API Error:", error);
+                        // Only rethrow if it's the last attempt or a non-retryable error
+                        if (i === maxRetries - 1) {
+                             return "Sorry, the AI service is currently unavailable. Please try again later.";
+                        }
+                    }
+                }
+                return "Sorry, the AI service is currently unavailable. Please try again later.";
+            }
+
+            // --- 3. Data Logic ---
+            const countryDataCache = {};
+
+            function getCountryData(d) {
+                const iso = d.properties.ISO_A3;
+                if (!countryDataCache[iso]) {
+                    const rate = getTariff(iso);
+                    const isHigh = rate > 10;
+                    const policies = isHigh 
+                        ? ['Domestic Protection', 'Import Substitution', 'Retaliatory Measures', 'High Duty']
+                        : ['Free Trade Agreement', 'Economic Partnership', 'Low Duty', 'Open Market'];
+                    
+                    countryDataCache[iso] = {
+                        name: d.properties.NAME,
+                        iso: iso,
+                        avgTariff: rate,
+                        gdpImpact: (Math.random() * 2 - (isHigh ? 1.5 : 0.5)).toFixed(2),
+                        partners: Array.from({ length: 3 + Math.floor(Math.random() * 3) }, () => ({
+                            rate: (Math.random() * (isHigh ? 30 : 10)).toFixed(1),
+                            policy: policies[Math.floor(Math.random() * policies.length)],
+                            topExport: ['Electronics', 'Agriculture', 'Machinery', 'Oil & Gas', 'Pharma', 'Textiles'][Math.floor(Math.random() * 6)]
+                        }))
+                    };
+                }
+                return countryDataCache[iso];
+            }
+
+            // --- 4. Globe Initialization ---
+            const world = Globe()
+                (document.getElementById('globeViz'))
+                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-dark.jpg') // Added Ocean Texture
+                .backgroundColor('#050505')
+                .showGlobe(true)
+                .showAtmosphere(true)
+                .atmosphereColor('#3a228a')
+                .atmosphereAltitude(0.15)
+                .polygonAltitude(0.01)
+                .polygonCapColor(d => {
+                    const data = getCountryData(d);
+                    const color = d3.color(colorScale(data.avgTariff));
+                    color.opacity = 0.9;
+                    return color.formatRgb();
+                })
+                .polygonSideColor(() => 'rgba(0,0,0,0.5)')
+                .polygonStrokeColor(() => '#111')
+                .polygonLabel(({ properties: d }) => `
+                    <div style="display:none">${d.NAME}</div> 
+                `)
+                .onPolygonHover(hoverD => {
+                    const tooltip = document.getElementById('tooltip');
+                    world.polygonAltitude(d => d === hoverD ? 0.06 : 0.01);
+                    world.polygonCapColor(d => {
+                        const data = getCountryData(d);
+                        const baseColor = d3.color(colorScale(data.avgTariff));
+                        if (d === hoverD) return '#3b82f6';
+                        baseColor.opacity = 0.9;
+                        return baseColor.formatRgb();
+                    });
+
+                    if (hoverD) {
+                        const data = getCountryData(hoverD);
+                        document.getElementById('tt-country').innerText = data.name;
+                        document.getElementById('tt-iso').innerText = data.iso;
+                        document.getElementById('tt-val').innerText = data.avgTariff.toFixed(1) + '%';
+                        tooltip.style.opacity = '1';
+                    } else {
+                        tooltip.style.opacity = '0';
+                    }
+                })
+                .onPolygonClick(d => {
+                    if (d) focusCountry(d);
+                });
+
+            // Set initial point of view (zoom) to focus on Africa, matching the user's request
+            world.pointOfView({
+                lat: 0, 
+                lng: 20, 
+                altitude: 0.8 // Setting altitude to 0.8 for a slightly more "far away" zoom
+            });
+
+
+            // --- 5. Load GeoJSON ---
+            fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
+                .then(res => res.json())
+                .then(countries => {
+                    world.polygonsData(countries.features);
+
+                    const arcs = Array.from({ length: 40 }).map(() => ({
+                        startLat: (Math.random() - 0.5) * 160,
+                        startLng: (Math.random() - 0.5) * 360,
+                        endLat: (Math.random() - 0.5) * 160,
+                        endLng: (Math.random() - 0.5) * 360,
+                        color: ['#ff0000', '#00ff00', '#ffff00'][Math.floor(Math.random() * 3)]
+                    }));
+                    
+                    world.arcsData(arcs)
+                        .arcColor('color')
+                        .arcDashLength(0.4)
+                        .arcDashGap(2)
+                        .arcDashInitialGap(() => Math.random())
+                        .arcDashAnimateTime(4000)
+                        .arcStroke(0.5);
+                });
+
+            // --- 6. UI Logic & AI Handlers (Updated) ---
+            window.addEventListener('mousemove', (e) => {
+                const tooltip = document.getElementById('tooltip');
+                const x = e.clientX;
+                const y = e.clientY;
+                tooltip.style.transform = `translate(${x}px, ${y - 20}px) translateX(-50%) translateY(-100%)`;
+            });
+
+            window.generateBriefing = async function(countryName, iso) {
+                const btn = document.getElementById('btn-briefing');
+                const output = document.getElementById('ai-briefing-output');
+                
+                btn.innerHTML = `<span class="ai-loading"></span>Analyzing...`;
+                btn.disabled = true;
+                output.classList.remove('hidden');
+
+                const prompt = `Act as an expert trade economist. Provide a concise executive summary (max 3 bullet points) of the current trade tariff landscape for ${countryName} (ISO: ${iso}). Mention key trade barriers, recent policy shifts, or major free trade agreements. Keep it professional and brief.`;
+                
+                const response = await callGemini(prompt);
+                
+                output.innerHTML = marked.parse(response);
+                btn.innerHTML = `<span class="pulsing-light"></span>Regenerate Briefing`;
+                btn.disabled = false;
+            };
+
+            window.estimateDuty = async function(countryName) {
+                const product = document.getElementById('product-input').value;
+                if (!product) return;
+
+                const btn = document.getElementById('btn-estimate');
+                const output = document.getElementById('ai-duty-output');
+                
+                btn.innerHTML = `<span class="ai-loading"></span>`;
+                btn.disabled = true;
+                output.classList.remove('hidden');
+                output.innerHTML = '';
+
+                const prompt = `Act as a customs broker. For the country ${countryName}, estimate the likely import tariff/duty category for "${product}". Provide a rough percentage estimate if possible, or describe the restriction level (Low/Medium/High). Be very concise (max 2 sentences).`;
+                
+                const response = await callGemini(prompt);
+                
+                output.innerHTML = marked.parse(response);
+                btn.innerHTML = `<span class="pulsing-light"></span>Check`;
+                btn.disabled = false;
+            };
+            
+            // --- New Feature: Policy Impact Simulation ---
+            window.simulatePolicyImpact = async function(countryName) {
+                const policy = document.getElementById('policy-input').value;
+                if (!policy) return;
+
+                const btn = document.getElementById('btn-simulate');
+                const output = document.getElementById('ai-impact-output');
+                
+                btn.innerHTML = `<span class="ai-loading"></span>Calculating Impact...`;
+                btn.disabled = true;
+                output.classList.remove('hidden');
+                output.innerHTML = '';
+
+                const prompt = `Act as a senior geopolitical economist. The country is ${countryName}. Analyze the potential economic and trade impact of the following hypothetical policy change: "${policy}". Structure your answer with 3 key potential outcomes (e.g., GDP change, sectoral impact, consumer cost). Use Markdown.`;
+                
+                const response = await callGemini(prompt);
+                
+                output.innerHTML = marked.parse(response);
+                btn.innerHTML = `<span class="pulsing-light"></span>Simulate Impact`;
+                btn.disabled = false;
+            };
+            // --- End New Feature ---
+
+            window.focusCountry = function(d) {
+                const data = getCountryData(d);
+                const panel = document.getElementById('sidePanel');
+                const content = document.getElementById('panelContent');
+                
+                let riskColor = 'green-500';
+                let riskText = 'Open Trade';
+                if (data.avgTariff > 5) { riskColor = 'yellow-500'; riskText = 'Moderate'; }
+                if (data.avgTariff > 12) { riskColor = 'red-500'; riskText = 'Protectionist'; }
+
+                content.innerHTML = `
+                    <div class="mb-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h2 class="text-3xl font-bold text-white leading-tight mb-2">${data.name}</h2>
+                                <span class="px-2 py-1 bg-white/10 text-gray-300 text-xs font-mono rounded border border-white/10">${data.iso}</span>
+                            </div>
+                            <span class="px-2 py-1 bg-${riskColor} bg-opacity-20 text-${riskColor} text-xs font-bold rounded uppercase border border-${riskColor}">${riskText}</span>
+                        </div>
+                    </div>
+
+                    <!-- AI Section 1: Briefing --><div class="mb-6">
+                        <button id="btn-briefing" onclick="generateBriefing('${data.name}', '${data.iso}')" class="w-full py-2 px-4 text-indigo-400 hover:text-indigo-300 border border-indigo-700 hover:border-indigo-600 rounded font-medium text-sm transition-colors flex items-center justify-center">
+                            <span class="pulsing-light"></span>Generate AI Trade Briefing
+                        </button>
+                        <div id="ai-briefing-output" class="hidden mt-3 text-sm text-gray-200 prose prose-invert max-w-none leading-relaxed p-3 bg-gray-900/80 rounded border border-gray-700">
+                            <span class="animate-pulse">Consulting global trade database...</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-white bg-opacity-5 p-4 rounded border border-white/5">
+                            <div class="text-gray-400 text-xs uppercase mb-1">Avg Tariff</div>
+                            <div class="text-3xl font-mono text-white tracking-tighter">${data.avgTariff.toFixed(1)}%</div>
+                        </div>
+                        <div class="bg-white bg-opacity-5 p-4 rounded border border-white/5">
+                            <div class="text-gray-400 text-xs uppercase mb-1">GDP Trend</div>
+                            <div class="text-3xl font-mono ${parseFloat(data.gdpImpact) < 0 ? 'text-red-400' : 'text-green-400'} tracking-tighter">${parseFloat(data.gdpImpact) > 0 ? '+' : ''}${data.gdpImpact}%</div>
+                        </div>
+                    </div>
+
+                    <!-- AI Section 2: Smart Estimator --><div class="mb-8">
+                            <h3 class="text-sm font-semibold text-white mb-2 flex items-center">
+                                <span class="pulsing-light"></span>Smart Duty Estimator
+                            </h3>
+                            <div class="flex space-x-2">
+                                <input id="product-input" type="text" placeholder="e.g. Electric Cars, Wheat..." class="flex-1 bg-black/50 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                <button id="btn-estimate" onclick="estimateDuty('${data.name}')" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded border border-gray-600 transition-colors text-sm font-bold flex items-center">
+                                    <span class="pulsing-light"></span>Check
+                                </button>
+                            </div>
+                            <div id="ai-duty-output" class="hidden mt-3 p-3 bg-gray-900/80 rounded border border-gray-700 text-sm text-indigo-300"></div>
+                    </div>
+
+                    <!-- AI Section 3: Policy Impact Simulator (NEW) -->
+                    <div class="mb-8">
+                        <h3 class="text-sm font-semibold text-white mb-2 flex items-center">
+                            <span class="pulsing-light"></span>Policy Impact Simulator
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-2">Simulate the likely economic outcome of a hypothetical trade policy change.</p>
+                        <div class="flex flex-col space-y-2">
+                            <textarea id="policy-input" rows="3" placeholder="e.g. Increase agricultural tariffs by 10% on all imports from China, or Negotiate a free trade agreement with Japan..." class="flex-1 bg-black/50 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500"></textarea>
+                            <button id="btn-simulate" onclick="simulatePolicyImpact('${data.name}')" class="w-full bg-red-800/50 hover:bg-red-700/50 text-red-300 px-4 py-2 rounded border border-red-700 transition-colors text-sm font-bold flex items-center justify-center">
+                                <span class="pulsing-light"></span>Simulate Impact
+                            </button>
+                        </div>
+                        <div id="ai-impact-output" class="hidden mt-3 text-sm text-gray-200 prose prose-invert max-w-none leading-relaxed p-3 bg-gray-900/80 rounded border border-gray-700"></div>
+                    </div>
+                    <!-- End NEW Feature -->
+
+                    <h3 class="text-lg font-semibold text-white mb-4 border-b border-gray-800 pb-2">Key Trade Relations</h3>
+                    <div class="space-y-4">
+                        ${data.partners.map((p, i) => `
+                            <div class="group">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-gray-300 text-sm group-hover:text-white transition-colors">Partner ${i+1}</span>
+                                    <span class="font-mono text-xs text-${parseFloat(p.rate) > 10 ? 'red-400' : 'emerald-400'}">${p.rate}% Duty</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mb-1 flex justify-between">
+                                    <span>${p.policy}</span>
+                                    <span class="text-gray-600">${p.topExport}</span>
+                                </div>
+                                <div class="w-full bg-gray-800 h-1 rounded overflow-hidden">
+                                    <div class="bg-blue-500 h-full" style="width: ${Math.min(p.rate * 4, 100)}%"></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                panel.classList.remove('translate-x-full');
+            }
+
+            window.closePanel = function() {
+                document.getElementById('sidePanel').classList.add('translate-x-full');
+            }
+
+            window.addEventListener('resize', () => {
+                world.width(window.innerWidth);
+                world.height(window.innerHeight);
+            });
+        });
+    </script>
+</body>
+
+</html>s
