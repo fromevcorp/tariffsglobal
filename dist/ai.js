@@ -1,7 +1,7 @@
 // main.js
 
 // === COLOQUE SUA CHAVE DA GEMINI AQUI ===
-const apiKey = "AIzaSyC-kYUs6Vn6bRe0dmbrNJqY8l_wrf07BoY"; // NÃO SUBA ESSA LINHA NO GITHUB PÚBLICO
+const apiKey = "."; // NÃO SUBA ESSA LINHA NO GITHUB PÚBLICO
 
 // Exemplo de função para consulta AI Gemini (como no seu código original)
 async function callGemini(prompt) {
@@ -38,4 +38,5 @@ window.generateBriefing = async function(countryName, iso) {
 };
 
 // Continue aqui com mais funções, conectando-as aos botões/interatividade do seu HTML, igual ao seu código original ou adaptado!
+
 
