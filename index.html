@@ -206,11 +206,11 @@
                         console.error("Gemini API Error:", error);
                         // Only rethrow if it's the last attempt or a non-retryable error
                         if (i === maxRetries - 1) {
-                             return "Sorry, the AI service is currently unavailable. Please try again later.";
+                             return "The AI service is coming soon.";
                         }
                     }
                 }
-                return "Sorry, the AI service is currently unavailable. Please try again later.";
+                return "The AI service is coming soon.";
             }
 
             // --- 3. Data Logic ---
@@ -490,4 +490,5 @@
 </body>
 
 </html>
+
 
