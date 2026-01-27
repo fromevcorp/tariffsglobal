@@ -135,8 +135,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- 1. Comprehensive Real World Data 2024/2025 (EXPANDED TO ~160 COUNTRIES) ---
-            // Sources: WTO Tariff Profiles, IMF WEO 2025, World Bank.
+            // --- 1. Comprehensive Real World Data 2024/2025 (EXPANDED TO ~180+ COUNTRIES) ---
+            // Sources: WTO Tariff Profiles, IMF WEO 2025, World Bank, EVCORP Estimates.
             // All major nations are now listed explicitly. Fallback is minimized.
             const realWorldData = {
                 // --- NORTH AMERICA ---
@@ -156,6 +156,16 @@
                 "CUB": { rate: 10.0, gdp: 1.5, partners: [{name:"Venezuela",rate:5.0,policy:"ALBA"}, {name:"China",rate:8.0,policy:"Strat. Ptnr"}, {name:"Russia",rate:6.0,policy:"Bilateral"}] },
                 "DOM": { rate: 8.5, gdp: 4.8, partners: [{name:"USA",rate:0,policy:"CAFTA-DR"}, {name:"Haiti",rate:5.0,policy:"Bilateral"}, {name:"China",rate:8.0,policy:"MFN"}] },
                 "HTI": { rate: 15.0, gdp: 2.5, partners: [{name:"USA",rate:0,policy:"HOPE Act"}, {name:"Dominican Republic",rate:10.0,policy:"Bilateral"}, {name:"Canada",rate:10.0,policy:"MFN"}] },
+                // Expanded Caribbean
+                "ATG": { rate: 15.0, gdp: 3.0, partners: [{name:"USA",rate:10.0,policy:"CBI"}, {name:"CARICOM",rate:0,policy:"CSME"}, {name:"Europe",rate:0,policy:"EPA"}] },
+                "BHS": { rate: 30.0, gdp: 2.0, partners: [{name:"USA",rate:25.0,policy:"MFN"}, {name:"Canada",rate:25.0,policy:"MFN"}, {name:"CARICOM",rate:0,policy:"CSME"}] },
+                "BRB": { rate: 12.0, gdp: 2.5, partners: [{name:"USA",rate:8.0,policy:"CBI"}, {name:"CARICOM",rate:0,policy:"CSME"}, {name:"United Kingdom",rate:10.0,policy:"MFN"}] },
+                "GRD": { rate: 15.0, gdp: 3.0, partners: [{name:"CARICOM",rate:0,policy:"CSME"}, {name:"USA",rate:10.0,policy:"CBI"}, {name:"Europe",rate:0,policy:"EPA"}] },
+                "LCA": { rate: 15.0, gdp: 2.5, partners: [{name:"CARICOM",rate:0,policy:"CSME"}, {name:"USA",rate:10.0,policy:"CBI"}, {name:"Europe",rate:0,policy:"EPA"}] },
+                "VCT": { rate: 15.0, gdp: 2.0, partners: [{name:"CARICOM",rate:0,policy:"CSME"}, {name:"USA",rate:10.0,policy:"CBI"}, {name:"Europe",rate:0,policy:"EPA"}] },
+                "KNA": { rate: 15.0, gdp: 3.5, partners: [{name:"CARICOM",rate:0,policy:"CSME"}, {name:"USA",rate:10.0,policy:"CBI"}, {name:"Europe",rate:0,policy:"EPA"}] },
+                "DMA": { rate: 15.0, gdp: 2.5, partners: [{name:"CARICOM",rate:0,policy:"CSME"}, {name:"USA",rate:10.0,policy:"CBI"}, {name:"Europe",rate:0,policy:"EPA"}] },
+                "TTO": { rate: 14.0, gdp: 2.0, partners: [{name:"USA",rate:10.0,policy:"CBI"}, {name:"CARICOM",rate:0,policy:"CSME"}, {name:"China",rate:12.0,policy:"MFN"}] },
 
                 // --- SOUTH AMERICA ---
                 "BRA": { rate: 13.3, gdp: 2.2, partners: [{name:"China",rate:12.0,policy:"MFN"}, {name:"Argentina",rate:0,policy:"Mercosur"}, {name:"USA",rate:12.5,policy:"MFN"}] },
@@ -213,6 +223,16 @@
                 "MKD": { rate: 4.1, gdp: 3.6, partners: [{name:"Europe",rate:0,policy:"SAA"}, {name:"Serbia",rate:0,policy:"CEFTA"}, {name:"Greece",rate:5.0,policy:"MFN"}] },
                 "SRB": { rate: 4.5, gdp: 3.8, partners: [{name:"Europe",rate:0,policy:"SAA"}, {name:"Russia",rate:0,policy:"FTA"}, {name:"China",rate:0,policy:"FTA"}] },
                 "MDA": { rate: 3.1, gdp: 4.0, partners: [{name:"Europe",rate:0,policy:"DCFTA"}, {name:"Russia",rate:6.0,policy:"CIS FTA"}, {name:"Ukraine",rate:0,policy:"CIS FTA"}] },
+                "BLR": { rate: 7.0, gdp: 3.0, partners: [{name:"Russia",rate:0,policy:"EAEU"}, {name:"China",rate:6.0,policy:"MFN"}, {name:"Europe",rate:8.0,policy:"MFN"}] },
+                "MNE": { rate: 5.0, gdp: 3.5, partners: [{name:"Europe",rate:0,policy:"SAA"}, {name:"Serbia",rate:0,policy:"CEFTA"}, {name:"China",rate:2.0,policy:"Loan Deals"}] },
+                "KOS": { rate: 1.5, gdp: 4.0, partners: [{name:"Serbia",rate:0,policy:"CEFTA"}, {name:"Albania",rate:0,policy:"CEFTA"}, {name:"Europe",rate:0,policy:"SAA"}] },
+                // Microstates & Others
+                "AND": { rate: 0.0, gdp: 2.0, partners: [{name:"Spain",rate:0,policy:"CU"}, {name:"France",rate:0,policy:"CU"}, {name:"Europe",rate:0,policy:"CU"}] },
+                "SMR": { rate: 0.0, gdp: 2.0, partners: [{name:"Italy",rate:0,policy:"Customs Union"}, {name:"Europe",rate:0,policy:"CU"}, {name:"USA",rate:2.0,policy:"MFN"}] },
+                "VAT": { rate: 0.0, gdp: 0.0, partners: [{name:"Italy",rate:0,policy:"Customs Union"}, {name:"Europe",rate:0,policy:"CU"}, {name:"Private Economy Effects",rate:0,policy:"N/A"}] },
+                "MCO": { rate: 1.5, gdp: 1.0, partners: [{name:"France",rate:0,policy:"Customs"}, {name:"Europe",rate:1.5,policy:"CU"}, {name:"Italy",rate:1.5,policy:"MFN"}] },
+                "LIE": { rate: 0.0, gdp: 1.8, partners: [{name:"Switzerland",rate:0,policy:"Customs Union"}, {name:"Europe",rate:0,policy:"EEA"}, {name:"Austria",rate:1.5,policy:"MFN"}] },
+                "GRL": { rate: 5.0, gdp: 1.5, partners: [{name:"Denmark",rate:0,policy:"Kingdom"}, {name:"Europe",rate:0,policy:"OCT Status"}, {name:"Iceland",rate:0,policy:"FTA"}] },
 
                 // --- CAUCASUS / CENTRAL ASIA ---
                 "KAZ": { rate: 5.2, gdp: 4.8, partners: [{name:"Russia",rate:0,policy:"EAEU"}, {name:"China",rate:6.0,policy:"MFN"}, {name:"Italy",rate:4.0,policy:"MFN"}] },
@@ -259,6 +279,13 @@
                 "LAO": { rate: 9.2, gdp: 4.0, partners: [{name:"Thailand",rate:0,policy:"ASEAN"}, {name:"China",rate:0.5,policy:"ACFTA"}, {name:"Vietnam",rate:0,policy:"ASEAN"}] },
                 "NPL": { rate: 12.5, gdp: 4.5, partners: [{name:"India",rate:0,policy:"Treaty"}, {name:"USA",rate:10.0,policy:"Pref."}, {name:"China",rate:11.0,policy:"MFN"}] },
                 "MNG": { rate: 5.0, gdp: 4.0, partners: [{name:"China",rate:6.0,policy:"MFN"}, {name:"Russia",rate:6.0,policy:"MFN"}, {name:"South Korea",rate:5.0,policy:"MFN"}] },
+                "AFG": { rate: 7.0, gdp: 0.5, partners: [{name:"Pakistan",rate:5.0,policy:"APTTA"}, {name:"Iran",rate:6.0,policy:"Bilateral"}, {name:"China",rate:8.0,policy:"MFN"}] },
+                "BTN": { rate: 10.0, gdp: 4.0, partners: [{name:"India",rate:0,policy:"FTA"}, {name:"China",rate:10.0,policy:"MFN"}, {name:"Bangladesh",rate:8.0,policy:"SAFTA"}] },
+                "PRK": { rate: 50.0, gdp: 0.1, partners: [{name:"China",rate:50.0,policy:"Closed"}, {name:"Russia",rate:40.0,policy:"Bilateral"}, {name:"Private Economy Effects",rate:100.0,policy:"Sanctions"}] },
+                // Expanded Asia
+                "BRN": { rate: 0.0, gdp: 2.0, partners: [{name:"Japan",rate:0,policy:"EPA"}, {name:"ASEAN",rate:0,policy:"AFTA"}, {name:"China",rate:0,policy:"ACFTA"}] },
+                "MDV": { rate: 20.0, gdp: 5.0, partners: [{name:"India",rate:0,policy:"Trade Agrmt"}, {name:"China",rate:0,policy:"FTA"}, {name:"UAE",rate:5.0,policy:"MFN"}] },
+                "TLS": { rate: 10.0, gdp: 3.0, partners: [{name:"Indonesia",rate:5.0,policy:"Bilateral"}, {name:"China",rate:8.0,policy:"MFN"}, {name:"Australia",rate:5.0,policy:"Treaty"}] },
 
                 // --- OCEANIA ---
                 "AUS": { rate: 2.5, gdp: 1.8, partners: [{name:"China",rate:3.0,policy:"ChAFTA"}, {name:"Japan",rate:0,policy:"JAEPA"}, {name:"USA",rate:0,policy:"AUSFTA"}] },
@@ -268,6 +295,15 @@
                 "VUT": { rate: 20.0, gdp: 2.5, partners: [{name:"Australia",rate:15.0,policy:"PACER"}, {name:"China",rate:18.0,policy:"MFN"}, {name:"New Zealand",rate:15.0,policy:"PACER"}] },
                 "SLB": { rate: 18.0, gdp: 3.0, partners: [{name:"Australia",rate:15.0,policy:"PACER"}, {name:"China",rate:16.0,policy:"MFN"}, {name:"Papua New Guinea",rate:10.0,policy:"MFN"}] },
                 "WSM": { rate: 22.0, gdp: 2.0, partners: [{name:"Australia",rate:18.0,policy:"PACER"}, {name:"New Zealand",rate:18.0,policy:"PACER"}, {name:"China",rate:20.0,policy:"MFN"}] },
+                "NCL": { rate: 1.0, gdp: 1.5, partners: [{name:"France",rate:0,policy:"Territory"}, {name:"Australia",rate:0,policy:"MFN"}, {name:"New Zealand",rate:0,policy:"MFN"}] },
+                "TUV": { rate: 25.0, gdp: 1.5, partners: [{name:"Australia",rate:20.0,policy:"MFN"}, {name:"New Zealand",rate:20.0,policy:"MFN"}, {name:"China",rate:25.0,policy:"MFN"}] },
+                "PLW": { rate: 1.0, gdp: 1.0, partners: [{name:"USA",rate:0,policy:"CFA"}, {name:"Japan",rate:1.0,policy:"MFN"}, {name:"China",rate:5.0,policy:"MFN"}] },
+                // Expanded Oceania
+                "TON": { rate: 15.0, gdp: 2.5, partners: [{name:"New Zealand",rate:0,policy:"PACER"}, {name:"Australia",rate:0,policy:"PACER"}, {name:"China",rate:15.0,policy:"MFN"}] },
+                "FSM": { rate: 10.0, gdp: 1.5, partners: [{name:"USA",rate:0,policy:"CFA"}, {name:"China",rate:10.0,policy:"MFN"}, {name:"Japan",rate:5.0,policy:"MFN"}] },
+                "KIR": { rate: 10.0, gdp: 1.5, partners: [{name:"Australia",rate:0,policy:"PACER"}, {name:"China",rate:10.0,policy:"MFN"}, {name:"Fiji",rate:5.0,policy:"MFN"}] },
+                "MHL": { rate: 5.0, gdp: 2.0, partners: [{name:"USA",rate:0,policy:"CFA"}, {name:"China",rate:10.0,policy:"MFN"}, {name:"Taiwan",rate:5.0,policy:"Aid/Trade"}] },
+                "NRU": { rate: 10.0, gdp: 1.0, partners: [{name:"Australia",rate:0,policy:"PACER"}, {name:"Taiwan",rate:0,policy:"Aid"}, {name:"New Zealand",rate:5.0,policy:"PACER"}] },
 
                 // --- AFRICA (Detailed) ---
                 "ZAF": { rate: 7.7, gdp: 1.2, partners: [{name:"China",rate:8.0,policy:"MFN"}, {name:"Europe",rate:0,policy:"EPA"}, {name:"USA",rate:6.5,policy:"AGOA"}] },
@@ -292,26 +328,12 @@
                 "NAM": { rate: 10.0, gdp: 3.2, partners: [{name:"South Africa",rate:0,policy:"SACU"}, {name:"Europe",rate:0,policy:"EPA"}, {name:"China",rate:10.0,policy:"MFN"}] },
                 "MOZ": { rate: 13.0, gdp: 5.0, partners: [{name:"South Africa",rate:8.0,policy:"SADC"}, {name:"China",rate:12.0,policy:"MFN"}, {name:"India",rate:11.0,policy:"MFN"}] },
                 "MDG": { rate: 14.0, gdp: 4.5, partners: [{name:"Europe",rate:0,policy:"EPA"}, {name:"China",rate:13.0,policy:"MFN"}, {name:"USA",rate:12.0,policy:"AGOA"}] },
-                "SDN": { rate: 15.5, gdp: 1.0, partners: [{name:"China",rate:15.0,policy:"Bilateral"}, {name:"United Arab Emirates",rate:10.0,policy:"MFN"}, {name:"Egypt",rate:5.0,policy:"GAFTA"}] },
                 "COD": { rate: 13.0, gdp: 6.0, partners: [{name:"China",rate:12.0,policy:"Mining Deal"}, {name:"Zambia",rate:11.0,policy:"MFN"}, {name:"Belgium",rate:10.0,policy:"MFN"}] },
                 "GAB": { rate: 10.0, gdp: 3.0, partners: [{name:"China",rate:10.0,policy:"MFN"}, {name:"France",rate:5.0,policy:"EU-EPA"}, {name:"USA",rate:8.0,policy:"AGOA"}] },
-
-                // --- Catch-all LDC/Small States (Realistic Averages) ---
-                "AFG": { rate: 7.0, gdp: 0.5, partners: [{name:"Pakistan",rate:5.0,policy:"APTTA"}, {name:"Iran",rate:6.0,policy:"Bilateral"}, {name:"China",rate:8.0,policy:"MFN"}] },
-                "ALB": { rate: 3.9, gdp: 3.5, partners: [{name:"Europe",rate:0,policy:"SAA"}, {name:"Turkey",rate:0,policy:"FTA"}, {name:"Italy",rate:0,policy:"SAA"}] },
-                "DZA": { rate: 18.9, gdp: 2.8, partners: [{name:"Europe",rate:0,policy:"Assoc."}, {name:"China",rate:17.0,policy:"MFN"}, {name:"Turkey",rate:15.0,policy:"FTA"}] },
-                "AND": { rate: 0.0, gdp: 2.0, partners: [{name:"Spain",rate:0,policy:"CU"}, {name:"France",rate:0,policy:"CU"}, {name:"Europe",rate:0,policy:"CU"}] },
-                "ATG": { rate: 15.0, gdp: 3.0, partners: [{name:"USA",rate:10.0,policy:"CBI"}, {name:"CARICOM",rate:0,policy:"CSME"}, {name:"Europe",rate:0,policy:"EPA"}] },
-                "BHS": { rate: 30.0, gdp: 2.0, partners: [{name:"USA",rate:25.0,policy:"MFN"}, {name:"Canada",rate:25.0,policy:"MFN"}, {name:"CARICOM",rate:0,policy:"CSME"}] }, // High rates for revenue
-                "BHR": { rate: 4.8, gdp: 2.9, partners: [{name:"Saudi Arabia",rate:0,policy:"GCC"}, {name:"USA",rate:0,policy:"FTA"}, {name:"China",rate:5.0,policy:"MFN"}] },
-                "BRB": { rate: 12.0, gdp: 2.5, partners: [{name:"USA",rate:8.0,policy:"CBI"}, {name:"CARICOM",rate:0,policy:"CSME"}, {name:"United Kingdom",rate:10.0,policy:"MFN"}] },
-                "BLR": { rate: 7.0, gdp: 3.0, partners: [{name:"Russia",rate:0,policy:"EAEU"}, {name:"China",rate:6.0,policy:"MFN"}, {name:"Europe",rate:8.0,policy:"MFN"}] },
                 "BEN": { rate: 12.0, gdp: 6.0, partners: [{name:"Nigeria",rate:10.0,policy:"ECOWAS"}, {name:"China",rate:11.0,policy:"MFN"}, {name:"Europe",rate:0,policy:"EPA"}] },
-                "BTN": { rate: 10.0, gdp: 4.0, partners: [{name:"India",rate:0,policy:"FTA"}, {name:"China",rate:10.0,policy:"MFN"}, {name:"Bangladesh",rate:8.0,policy:"SAFTA"}] },
                 "BFA": { rate: 12.0, gdp: 4.5, partners: [{name:"Côte d’Ivoire",rate:0,policy:"ECOWAS"}, {name:"China",rate:11.0,policy:"MFN"}, {name:"Europe",rate:0,policy:"EPA"}] },
                 "BDI": { rate: 15.0, gdp: 2.0, partners: [{name:"Tanzania",rate:0,policy:"EAC"}, {name:"Kenya",rate:0,policy:"EAC"}, {name:"China",rate:14.0,policy:"MFN"}] },
                 "CPV": { rate: 8.0, gdp: 3.5, partners: [{name:"Europe",rate:0,policy:"Assoc."}, {name:"Portugal",rate:5.0,policy:"MFN"}, {name:"USA",rate:6.0,policy:"MFN"}] },
-                "KOS": { rate: 1.5, gdp: 4.0, partners: [{name:"Serbia",rate:0,policy:"CEFTA"}, {name:"Albania",rate:0,policy:"CEFTA"}, {name:"Europe",rate:0,policy:"SAA"}] },
                 "COM": { rate: 15.0, gdp: 3.0, partners: [{name:"France",rate:10.0,policy:"MFN"}, {name:"China",rate:14.0,policy:"MFN"}, {name:"Tanzania",rate:10.0,policy:"MFN"}] },
                 "COG": { rate: 14.0, gdp: 3.5, partners: [{name:"China",rate:13.0,policy:"MFN"}, {name:"France",rate:10.0,policy:"MFN"}, {name:"USA",rate:12.0,policy:"AGOA"}] },
                 "DJI": { rate: 10.0, gdp: 4.0, partners: [{name:"Ethiopia",rate:8.0,policy:"Port Agrmt"}, {name:"China",rate:10.0,policy:"MFN"}, {name:"USA",rate:8.0,policy:"MFN"}] },
@@ -319,15 +341,11 @@
                 "ERI": { rate: 16.0, gdp: 2.5, partners: [{name:"China",rate:15.0,policy:"MFN"}, {name:"Sudan",rate:14.0,policy:"MFN"}, {name:"Italy",rate:12.0,policy:"MFN"}] },
                 "GMB": { rate: 13.0, gdp: 4.0, partners: [{name:"Senegal",rate:0,policy:"ECOWAS"}, {name:"China",rate:12.0,policy:"MFN"}, {name:"Europe",rate:0,policy:"EBA"}] },
                 "GNB": { rate: 12.0, gdp: 4.5, partners: [{name:"Portugal",rate:8.0,policy:"MFN"}, {name:"China",rate:11.0,policy:"MFN"}, {name:"Senegal",rate:0,policy:"ECOWAS"}] },
-                "IRL": { rate: 1.5, gdp: 3.5, partners: [{name:"USA",rate:2.5,policy:"WTO"}, {name:"United Kingdom",rate:0,policy:"TCA"}, {name:"belgium",rate:0,policy:"EU Market"}] },
                 "LBR": { rate: 15.0, gdp: 3.5, partners: [{name:"China",rate:14.0,policy:"MFN"}, {name:"USA",rate:12.0,policy:"AGOA"}, {name:"Cote d'Ivoire",rate:0,policy:"ECOWAS"}] },
                 "LBY": { rate: 8.0, gdp: 1.5, partners: [{name:"Italy",rate:5.0,policy:"MFN"}, {name:"Turkey",rate:6.0,policy:"MFN"}, {name:"China",rate:8.0,policy:"MFN"}] },
-                "MDG": { rate: 14.0, gdp: 4.5, partners: [{name:"Europe",rate:0,policy:"EPA"}, {name:"China",rate:13.0,policy:"MFN"}, {name:"USA",rate:12.0,policy:"AGOA"}] },
                 "MWI": { rate: 15.0, gdp: 4.0, partners: [{name:"South Africa",rate:10.0,policy:"SADC"}, {name:"China",rate:14.0,policy:"MFN"}, {name:"Europe",rate:0,policy:"EBA"}] },
                 "MUS": { rate: 12.0, gdp: 3.0, partners: [{name:"Europe",rate:0,policy:"EPA"}, {name:"India",rate:0,policy:"CEPA"}, {name:"China",rate:10.0,policy:"MFN"}] },
                 "MRT": { rate: 8.0, gdp: 3.5, partners: [{name:"Europe",rate:5.0,policy:"MFN"}, {name:"China",rate:8.0,policy:"MFN"}, {name:"Spain",rate:6.0,policy:"MFN"}] },
-                "NCL": { rate: 1.0, gdp: 1.5, partners: [{name:"France",rate:0,policy:"Territory"}, {name:"Australia",rate:0,policy:"MFN"}, {name:"New Zealand",rate:0,policy:"MFN"}] }, // French Territory
-                "PRK": { rate: 50.0, gdp: 0.1, partners: [{name:"China",rate:50.0,policy:"Closed"}, {name:"Russia",rate:40.0,policy:"Bilateral"}, {name:"Private Economy Effects",rate:100.0,policy:"Sanctions"}] }, // Highly restrictive, mostly sanctions
                 "STP": { rate: 18.0, gdp: 2.5, partners: [{name:"Portugal",rate:15.0,policy:"MFN"}, {name:"China",rate:17.0,policy:"MFN"}, {name:"Nigeria",rate:15.0,policy:"MFN"}] },
                 "SLE": { rate: 14.0, gdp: 4.0, partners: [{name:"China",rate:13.0,policy:"MFN"}, {name:"Europe",rate:0,policy:"EBA"}, {name:"Liberia",rate:0,policy:"ECOWAS"}] },
                 "SOM": { rate: 10.0, gdp: 3.0, partners: [{name:"United Arab Emirates",rate:8.0,policy:"Port Deals"}, {name:"Ethiopia",rate:9.0,policy:"MFN"}, {name:"Turkey",rate:7.0,policy:"MFN"}] },
@@ -336,28 +354,13 @@
                 "TCD": { rate: 14.0, gdp: 3.0, partners: [{name:"China",rate:13.0,policy:"Oil Deals"}, {name:"Cameroon",rate:0,policy:"CEMAC"}, {name:"France",rate:10.0,policy:"MFN"}] },
                 "TGO": { rate: 12.0, gdp: 5.5, partners: [{name:"Ghana",rate:0,policy:"ECOWAS"}, {name:"China",rate:11.0,policy:"MFN"}, {name:"Europe",rate:0,policy:"EPA"}] },
                 "TUN": { rate: 9.0, gdp: 2.2, partners: [{name:"Europe",rate:0,policy:"Assoc."}, {name:"Algeria",rate:5.0,policy:"GAFTA"}, {name:"Italy",rate:6.0,policy:"MFN"}] },
-                "TTO": { rate: 14.0, gdp: 2.0, partners: [{name:"USA",rate:10.0,policy:"CBI"}, {name:"CARICOM",rate:0,policy:"CSME"}, {name:"China",rate:12.0,policy:"MFN"}] },
-                "URY": { rate: 9.5, gdp: 3.2, partners: [{name:"China",rate:10.0,policy:"MFN"}, {name:"Brazil",rate:0,policy:"Mercosur"}, {name:"Argentina",rate:0,policy:"Mercosur"}] },
                 "ZWE": { rate: 16.0, gdp: 2.0, partners: [{name:"South Africa",rate:10.0,policy:"SADC"}, {name:"China",rate:15.0,policy:"MFN"}, {name:"Zambia",rate:14.0,policy:"MFN"}] },
-                // Add Greenland (GRL)
-                "GRL": { rate: 5.0, gdp: 1.5, partners: [{name:"Denmark",rate:0,policy:"Kingdom"}, {name:"Europe",rate:0,policy:"OCT Status"}, {name:"Iceland",rate:0,policy:"FTA"}] },
-                // Add Vatican (VAT) - Special case
-                "VAT": { rate: 0.0, gdp: 0.0, partners: [{name:"Italy",rate:0,policy:"Customs Union"}, {name:"Europe",rate:0,policy:"CU"}, {name:"Private Economy Effects",rate:0,policy:"N/A"}] },
-                // Add Monaco (MCO) - Special case
-                "MCO": { rate: 1.5, gdp: 1.0, partners: [{name:"France",rate:0,policy:"Customs"}, {name:"Europe",rate:1.5,policy:"CU"}, {name:"Italy",rate:1.5,policy:"MFN"}] },
-                // Add Liechtenstein (LIE) - EEA
-                "LIE": { rate: 0.0, gdp: 1.8, partners: [{name:"Switzerland",rate:0,policy:"Customs Union"}, {name:"Europe",rate:0,policy:"EEA"}, {name:"Austria",rate:1.5,policy:"MFN"}] },
-                // Add Samoa
-                "WSM": { rate: 22.0, gdp: 2.0, partners: [{name:"Australia",rate:18.0,policy:"PACER"}, {name:"New Zealand",rate:18.0,policy:"PACER"}, {name:"China",rate:20.0,policy:"MFN"}] },
-                // Add Papua New Guinea
-                "PNG": { rate: 4.5, gdp: 4.0, partners: [{name:"Australia",rate:0,policy:"PATCRA"}, {name:"China",rate:5.0,policy:"MFN"}, {name:"Japan",rate:3.0,policy:"MFN"}] },
-                // Add Solomon Islands
-                "SLB": { rate: 18.0, gdp: 3.0, partners: [{name:"Australia",rate:15.0,policy:"PACER"}, {name:"China",rate:16.0,policy:"MFN"}, {name:"Papua New Guinea",rate:10.0,policy:"MFN"}] },
-                // Add Tuvalu
-                "TUV": { rate: 25.0, gdp: 1.5, partners: [{name:"Australia",rate:20.0,policy:"MFN"}, {name:"New Zealand",rate:20.0,policy:"MFN"}, {name:"China",rate:25.0,policy:"MFN"}] },
-                // Add Palau
-                "PLW": { rate: 1.0, gdp: 1.0, partners: [{name:"USA",rate:0,policy:"CFA"}, {name:"Japan",rate:1.0,policy:"MFN"}, {name:"China",rate:5.0,policy:"MFN"}] },
-
+                // Expanded Africa
+                "SYC": { rate: 5.0, gdp: 4.0, partners: [{name:"Europe",rate:0,policy:"EPA"}, {name:"China",rate:5.0,policy:"MFN"}, {name:"India",rate:5.0,policy:"MFN"}] },
+                "LSO": { rate: 10.0, gdp: 2.0, partners: [{name:"South Africa",rate:0,policy:"SACU"}, {name:"Europe",rate:0,policy:"EPA"}, {name:"USA",rate:8.0,policy:"AGOA"}] },
+                "GIN": { rate: 12.0, gdp: 4.5, partners: [{name:"China",rate:10.0,policy:"Resource Deal"}, {name:"ECOWAS",rate:0,policy:"ECOWAS"}, {name:"UAE",rate:5.0,policy:"Gold Trade"}] },
+                "RWA": { rate: 12.0, gdp: 6.5, partners: [{name:"EAC",rate:0,policy:"Common Mkt"}, {name:"China",rate:10.0,policy:"MFN"}, {name:"Europe",rate:0,policy:"EPA"}] },
+                "CAF": { rate: 18.0, gdp: 2.0, partners: [{name:"Cameroon",rate:0,policy:"CEMAC"}, {name:"France",rate:10.0,policy:"MFN"}, {name:"China",rate:15.0,policy:"MFN"}] },
             };
 
             // Helper to get data or generate realistic fallback
@@ -606,6 +609,3 @@
     </script>
 </body>
 </html>
-
-
-
